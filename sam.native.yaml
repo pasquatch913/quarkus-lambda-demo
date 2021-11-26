@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Serverless Quarkus HTTP - quarkus-amazon-lambda-rest-deployment
+Globals:
+  Api:
+    EndpointConfiguration: REGIONAL
+    BinaryMediaTypes:
+      - "*/*"
+
+Resources:
+  MyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - 'lambda.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: 'UserDdbAccess'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource: "arn:aws:dynamodb:us-east-1:369773440338:table/Users"
+  RestapiQuarkusNative:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: not.used.in.provided.runtimei
+      Runtime: provided
+      CodeUri: function.zip
+      MemorySize: 512
+      Role: !GetAtt MyRole.Arn
+      Timeout: 15
+      Environment:
+        Variables:
+          DISABLE_SIGNAL_HANDLERS: true
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userName
+          AttributeType: S
+        - AttributeName: userDescription
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userName
+          KeyType: HASH
+
+Outputs:
+  RestapiQuarkusNativeApi:
+    Description: URL for application
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+    Export:
+      Name: RestapiQuarkusNativeApi
