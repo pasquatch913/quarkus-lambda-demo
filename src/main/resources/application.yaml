@@ -1,0 +1,10 @@
+quarkus:
+  dynamodb:
+    aws:
+      region: us-east-1
+      credentials:
+        type: default
+  native:
+    additional-build-args:
+      - --initialize-at-run-time=software.amazon.awssdk.utils.cache.CachedSupplier
+      - --allow-incomplete-classpath

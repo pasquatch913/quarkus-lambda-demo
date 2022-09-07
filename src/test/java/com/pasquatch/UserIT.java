@@ -1,7 +1,7 @@
 package com.pasquatch;
 
-import io.quarkus.test.junit.NativeImageTest;
+import io.quarkus.test.junit.QuarkusIntegrationTest;
 
-@NativeImageTest
+@QuarkusIntegrationTest
 public class UserIT extends UserTest {
 }
