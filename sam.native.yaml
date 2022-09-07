@@ -7,10 +7,6 @@ Globals:
     BinaryMediaTypes:
       - "*/*"
 
-# it was probably working before and i was just a dummy and got the path wrong
-# try deleting, rolling back changes, and deploying again to see if i can get it to work before cleaning up some
-# also look into steps we can take to make deployment more hands off
-
 Resources:
   MyRole:
     Type: AWS::IAM::Role
